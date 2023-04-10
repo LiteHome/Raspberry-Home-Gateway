@@ -14,5 +14,4 @@ public enum ResultCode {
 
     @Getter
     private final String code;
-
 }

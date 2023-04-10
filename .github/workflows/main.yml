@@ -1,0 +1,19 @@
+name: trigger-pipeline-with-post-request
+on: [push]
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request To PipeLine Server
+        id: request
+        uses: fjogeleit/http-request-action@v1.12.0
+        with:
+          timeout: 60000
+          url: "http://43.138.213.187:4400/start"
+          method: POST
+          customHeaders: '{"Content-Type": "application/json"}'
+          data: '{"host":"43.138.213.187","ras_host":"43.138.213.187","ras_account":"root","ras_port":"13000","account":"root","ssh_file_path":"/root/.ssh","key_type":"ed25519","git_repositry_path":"/root/javaProject/Raspberry-Home-Gateway/gateway","image_name":"iot/gateway","container_name":"rasGateway","port":"13580","repository_name":"nopepsi/app", "mode":"1"}'
+      - name: Show Response
+        run: |
+          echo ${{ steps.request.outputs.response }}
+          echo ${{ steps.request.outputs.headers }}

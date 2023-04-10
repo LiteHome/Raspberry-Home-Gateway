@@ -25,6 +25,9 @@ public class DeviceDataVO {
 
     private Float humidity;
 
+    @JsonProperty(value = "camera_image_url")
+    private Float cameraImageUrl;
+
     @JsonProperty(value = "success_request_latency_avg")
     private Float successRequestLatencyAvg;
 
@@ -33,7 +36,4 @@ public class DeviceDataVO {
 
     @JsonProperty(value = "fail_fetch_sensor_data_count_avg")
     private Float failFetchSensorDataCountAvg;
-
-    @JsonProperty(value = "camera_image_url")
-    private Float cameraImageUrl;
 }
