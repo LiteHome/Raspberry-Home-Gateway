@@ -1,5 +1,5 @@
 FROM eclipse-temurin:17.0.6_10-jre-jammy
-ARG JAR_FILE=/root/javaProject/Raspberry-Home-Gateway/gateway/target/gateway-0.0.1-SNAPSHOT-spring-boot.jar
+ARG JAR_FILE=/target/*-spring-boot.jar
 COPY ${JAR_FILE} app.jar
 
 RUN apk add --no-cache tzdata
