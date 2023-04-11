@@ -75,14 +75,32 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>
+								repackage
+							</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
+					<classifier>spring-boot</classifier>
+					<mainClass>com.rashome.gateway.GatewayApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
+						<exclude>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-starter-test</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-devtools</artifactId>
+						</exclude>
 					</excludes>
-					<excludeDevtools>true</excludeDevtools>
 				</configuration>
 			</plugin>
 		</plugins>
