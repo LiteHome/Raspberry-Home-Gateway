@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:17.0.6_10-jre-jammy
 ARG JAR_FILE=/target/*-spring-boot.jar
 COPY ${JAR_FILE} app.jar
 
