@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64/v8 eclipse-temurin:17.0.6_10-jre-jammy
+FROM --platform=linux/arm64/v8 bellsoft/liberica-openjdk-alpine:17
 ARG JAR_FILE=/target/*-spring-boot.jar
 COPY ${JAR_FILE} app.jar
 
