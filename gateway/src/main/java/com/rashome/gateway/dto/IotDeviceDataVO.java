@@ -1,22 +1,25 @@
 package com.rashome.gateway.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rashome.gateway.dto.base.BaseDataVO;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-
 /**
- * 发送到后端服务器的设备 VO
+ * 接收来自 iot 设备的数据 VO
  */
+@JsonInclude(Include.NON_NULL)
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
-public class DeviceVO {
+public class IotDeviceDataVO extends BaseDataVO {
 
-    @JsonProperty(value = "health_check_url")
-    private String healthCheckUrl;
+    @JsonProperty(value = "parent_uuid")
+    private String parentUuid;
 
     // 默认值是 30s
     @JsonProperty(value = "health_check_rate")
@@ -30,5 +33,4 @@ public class DeviceVO {
 
     @JsonProperty(value = "device_tag")
     private String deviceTag;
-    
 }

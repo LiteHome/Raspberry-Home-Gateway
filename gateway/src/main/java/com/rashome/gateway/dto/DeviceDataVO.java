@@ -5,35 +5,24 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rashome.gateway.dto.base.BaseDataVO;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-
+/**
+ * 发送到后端服务器的数据 VO
+ */
 @JsonInclude(Include.NON_NULL)
 @Data
+@EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
-public class DeviceDataVO {
+public class DeviceDataVO extends BaseDataVO {
 
     @JsonProperty(value = "collected_date")
     private Date collectedDate;
 
     @JsonProperty(value = "device_id")
     private Long deviceId;
-
-    private Float temperature;
-
-    private Float humidity;
-
-    @JsonProperty(value = "camera_image_url")
-    private Float cameraImageUrl;
-
-    @JsonProperty(value = "success_request_latency_avg")
-    private Float successRequestLatencyAvg;
-
-    @JsonProperty(value = "fail_request_latency_avg")
-    private Float failRequestLatencyAvg;
-
-    @JsonProperty(value = "fail_fetch_sensor_data_count_avg")
-    private Float failFetchSensorDataCountAvg;
 }
