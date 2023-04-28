@@ -1,8 +1,8 @@
 package com.rashome.gateway.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,10 +10,13 @@ import lombok.NoArgsConstructor;
 /**
  * 发送到后端服务器的设备 VO
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class DeviceVO {
+
+    private Long id;
+
 
     @JsonProperty(value = "health_check_url")
     private String healthCheckUrl;
@@ -31,4 +34,13 @@ public class DeviceVO {
     @JsonProperty(value = "device_tag")
     private String deviceTag;
     
+    public DeviceVO(IotDeviceDataVO iotDeviceDataVO) {
+
+        this.deviceInformation = iotDeviceDataVO.getDeviceInformation();
+        this.deviceUuid = iotDeviceDataVO.getDeviceUuid();
+        this.deviceTag = iotDeviceDataVO.getDeviceTag();
+
+    }
+
+
 }

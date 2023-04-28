@@ -2,7 +2,9 @@ package com.rashome.gateway.dto.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Data;
 
+@Data
 public class BaseDataVO {
 
     public Float temperature;

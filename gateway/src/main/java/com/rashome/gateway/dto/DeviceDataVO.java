@@ -1,6 +1,8 @@
 package com.rashome.gateway.dto;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -25,4 +27,15 @@ public class DeviceDataVO extends BaseDataVO {
 
     @JsonProperty(value = "device_id")
     private Long deviceId;
+
+    public DeviceDataVO(IotDeviceDataVO iotDeviceDataVO, Long deviceId) {
+
+        this.collectedDate = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")).getTime();
+        this.deviceId = deviceId;
+
+        this.temperature = iotDeviceDataVO.getTemperature();
+        this.humidity = iotDeviceDataVO.getHumidity();
+        this.cameraImageBase64 = iotDeviceDataVO.getCameraImageBase64();
+        this.failFetchSensorDataCountAvg = iotDeviceDataVO.getFailFetchSensorDataCountAvg();
+    }
 }

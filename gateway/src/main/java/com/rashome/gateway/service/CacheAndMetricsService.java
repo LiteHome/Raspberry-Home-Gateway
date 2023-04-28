@@ -6,11 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UuidMapService {
+public class CacheAndMetricsService {
     
-
     private static final Map<String, Long> map = new ConcurrentHashMap<>(100);
-
 
     public Long getDeviceId(String uuid) {
 

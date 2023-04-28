@@ -1,5 +1,6 @@
 package com.rashome.gateway.commons.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,6 +29,10 @@ public class HttpUtil {
      */
     public static String postJsonPayload(String url, String payload) throws IotGatewayException, RestClientException, IllegalArgumentException {
         
+        if (StringUtils.isAnyBlank(url, payload)) {
+            throw new IotGatewayException("url 或 payload 为空");
+        }
+
         HttpHeaders httpHeaders = new HttpHeaders();
 
         // 设置请求头部
