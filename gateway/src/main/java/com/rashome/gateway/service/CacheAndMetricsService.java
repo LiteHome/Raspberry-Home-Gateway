@@ -1,14 +1,65 @@
 package com.rashome.gateway.service;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.rashome.gateway.commons.exception.IotGatewayException;
+import com.rashome.gateway.dto.DeviceVO;
 
 @Service
 public class CacheAndMetricsService {
     
     private static final Map<String, Long> map = new ConcurrentHashMap<>(100);
+
+    private String gatewayUuid;
+
+    private Long gatewayDeviceid;
+
+    private static final Logger logger = LoggerFactory.getLogger(CacheAndMetricsService.class);
+
+    @Autowired
+    private ReportService reportService;
+
+    /**
+     * 初始化函数, 将 gateway 注册到云端
+     * @throws IotGatewayException
+     * @throws IllegalArgumentException
+     * @throws JsonProcessingException
+     * @throws RestClientException
+     */
+    public CacheAndMetricsService() throws RestClientException, JsonProcessingException, IllegalArgumentException, IotGatewayException {
+
+        String uuidString = UUID.randomUUID().toString();
+        
+        DeviceVO deviceVO = new DeviceVO();
+
+        deviceVO.setDeviceInformation("树莓派网关");
+        deviceVO.setDeviceTag("2012");
+        deviceVO.setDeviceUuid(uuidString);
+        deviceVO.setParentUuid(uuidString);
+        deviceVO.setGatewayUuid(uuidString);
+        
+        DeviceVO registDeviceVO = reportService.registDeviceVO(deviceVO);
+
+        this.gatewayUuid = uuidString;
+        this.gatewayDeviceid = registDeviceVO.getId();
+    }
+
+    public String getGatewayUuid() {
+        return this.gatewayUuid;
+    }
+
+    public Long getGatewayDeviceId() {
+        return this.gatewayDeviceid;
+    }
 
     public Long getDeviceId(String uuid) {
 

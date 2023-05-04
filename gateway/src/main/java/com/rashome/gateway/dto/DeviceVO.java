@@ -33,13 +33,20 @@ public class DeviceVO {
 
     @JsonProperty(value = "device_tag")
     private String deviceTag;
+
+    @JsonProperty(value = "parent_uuid")
+    private String parentUuid;
+
+    @JsonProperty(value = "gateway_uuid")
+    private String gatewayUuid;
     
-    public DeviceVO(IotDeviceDataVO iotDeviceDataVO) {
+    public DeviceVO(IotDeviceDataVO iotDeviceDataVO, String gatewayUuid) {
 
         this.deviceInformation = iotDeviceDataVO.getDeviceInformation();
         this.deviceUuid = iotDeviceDataVO.getDeviceUuid();
         this.deviceTag = iotDeviceDataVO.getDeviceTag();
-
+        this.parentUuid = iotDeviceDataVO.getParentUuid();
+        this.gatewayUuid = gatewayUuid;
     }
 
 

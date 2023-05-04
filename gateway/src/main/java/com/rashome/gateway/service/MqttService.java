@@ -33,26 +33,31 @@ public class MqttService {
     private IMqttClient mqttClient;
 
     @Autowired
-    private CacheAndMetricsService uuidMapService;
+    private CacheAndMetricsService cacheAndMetricsService;
 
     @Autowired
     private ReportService reportService;
 
 
-
+    /**
+     * 初始化 Mqtt Client, 尝试连接 Mqtt Broker
+     * @param mqttBrokerUrl
+     */
     public MqttService(@Value("${mqtt.broker.url}") String mqttBrokerUrl) {
 
+        // 连接 Mqtt Broker
         try {
             mqttClient = new MqttClient(mqttBrokerUrl, UUID.randomUUID().toString(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setAutomaticReconnect(true);
-            options.setCleanSession(true);
-            options.setConnectionTimeout(10);
+            options.setAutomaticReconnect(true); // 自动重连
+            options.setCleanSession(false); // 干净 Session
+            options.setConnectionTimeout(10); // 连接超时时间
             mqttClient.connect(options);
         } catch (MqttException e) {
             logger.error("Mqtt 连接失败", new IotGatewayException(e));
         }
 
+        // 连接 topic
         try {
             mqttClient.subscribe("board/+/data", this::messageHandler);
             mqttClient.subscribe("board/+/sensor/+/data", this::messageHandler);
@@ -61,10 +66,14 @@ public class MqttService {
         }
     }
 
+    /**
+     * 消息处理方法
+     * @param topic
+     * @param message
+     */
     private void messageHandler(String topic, MqttMessage message) {
 
-        boolean isSensorIotDeviceData = true;
-
+        // 判断数据是否合法
         IotDeviceDataVO iotDeviceDataVO;
         try {
             iotDeviceDataVO = checkMessageFormat(message);
@@ -73,10 +82,13 @@ public class MqttService {
             return;
         }
 
+        // 判断是 传感器数据 还是 控制板数据
+        boolean isSensorIotDeviceData = true;
         if (iotDeviceDataVO.getParentUuid().equals(iotDeviceDataVO.getDeviceUuid())) {
             isSensorIotDeviceData = false;
         }
 
+        // 判断设备是否已注册. 设备 包含传感器和控制板
         Long deviceId;
         try {
             deviceId = checkIfRegist(iotDeviceDataVO);
@@ -89,8 +101,8 @@ public class MqttService {
             return;
         }
 
+        // 发送数据, 失败则记录日志
         DeviceDataVO deviceDataVO = new DeviceDataVO(iotDeviceDataVO, deviceId);
-
         try {
             reportService.sendData(deviceDataVO);
         } catch (RestClientException | JsonProcessingException | IllegalArgumentException e) {
@@ -98,12 +110,20 @@ public class MqttService {
         }
     }
 
+    /**
+     * 检查数据是否合法
+     * @param message mqtt 消息
+     * @return
+     * @throws IotGatewayException
+     */
     private IotDeviceDataVO checkMessageFormat(MqttMessage message) throws IotGatewayException {
 
+        // 判断是否空数据
         if (ArrayUtils.isEmpty(message.getPayload())) {
             throw new IotGatewayException("得到空消息");
         }
 
+        // 序列化数据
         IotDeviceDataVO iotDeviceDataVO;
         try {
             iotDeviceDataVO = JsonUtil.byteArrayToObject(message.getPayload(), IotDeviceDataVO.class);
@@ -111,37 +131,54 @@ public class MqttService {
             throw new IotGatewayException(String.format("IOT数据序列化失败, %s", message.getPayload()), e);
         }
 
+        // 判断必填字段是否空白
         if (StringUtils.isAnyBlank(
             iotDeviceDataVO.getDeviceUuid(),
             iotDeviceDataVO.getParentUuid(),
             iotDeviceDataVO.getDeviceInformation(), 
             iotDeviceDataVO.getDeviceTag())) {
-        
+
             throw new IotGatewayException(String.format("Iot数据不合法 %s", iotDeviceDataVO));
         }
 
         return iotDeviceDataVO;
     }
 
+    /**
+     * 检查设备是否注册
+     * @param iotDeviceDataVO
+     * @return
+     * @throws RestClientException
+     * @throws JsonProcessingException
+     * @throws IllegalArgumentException
+     * @throws IotGatewayException
+     */
     private Long checkIfRegist(IotDeviceDataVO iotDeviceDataVO) throws RestClientException, JsonProcessingException, IllegalArgumentException, IotGatewayException {
 
-        Long deviceId = uuidMapService.getDeviceId(iotDeviceDataVO.getDeviceUuid());
-
+        // 有缓存则说明已注册
+        Long deviceId = cacheAndMetricsService.getDeviceId(iotDeviceDataVO.getDeviceUuid());
         if (ObjectUtils.isNotEmpty(deviceId)) {
             return deviceId;
         }
 
-        DeviceVO deviceVO = new DeviceVO(iotDeviceDataVO);
-
+        // 没有注册则发送注册请求
+        DeviceVO deviceVO = new DeviceVO(iotDeviceDataVO, cacheAndMetricsService.getGatewayUuid());
         DeviceVO registDeviceVO = reportService.registDeviceVO(deviceVO);
 
+        // 注册成功则放入缓存
         deviceId = registDeviceVO.getId();
-
-        uuidMapService.put(iotDeviceDataVO.getDeviceUuid(), deviceId);
+        cacheAndMetricsService.put(iotDeviceDataVO.getDeviceUuid(), deviceId);
 
         return deviceId;
     }
 
+    /**
+     * 发送 Mqtt 消息
+     * @param <T>
+     * @param topic
+     * @param object
+     * @throws IotGatewayException
+     */
     public <T> void sendMessage(String topic, T object) throws IotGatewayException {
 
         if (ObjectUtils.isEmpty(mqttClient)) {

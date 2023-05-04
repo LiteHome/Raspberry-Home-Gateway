@@ -31,6 +31,9 @@ public class IotDeviceDataVO extends BaseDataVO {
     @JsonProperty(value = "device_uuid")
     private String deviceUuid;
 
+    @JsonProperty(value = "gateway_uuid")
+    private String gatewayUuid;
+
     @JsonProperty(value = "device_tag")
     private String deviceTag;
 }
