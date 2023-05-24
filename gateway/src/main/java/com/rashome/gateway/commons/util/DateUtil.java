@@ -1,6 +1,10 @@
 package com.rashome.gateway.commons.util;
 
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -30,5 +34,19 @@ public class DateUtil {
      */
     public static int dateDiffInSecond(Date targetDate) {
         return Math.round((new Date().getTime() - targetDate.getTime()) / 1000);
+    }
+
+        /**
+     * 获取当前时间并格式化
+     * @param dateTimeFormatter
+     * @return
+     */
+    public static String getCurDateAndFormatted(DateTimeFormatter dateTimeFormatter) {
+
+        Instant nowUtc = Instant.now();
+        ZoneId asiaShanghaZoneId = ZoneId.of("Asia/Shanghai");
+        ZonedDateTime instantTime = ZonedDateTime.ofInstant(nowUtc, asiaShanghaZoneId);
+
+        return instantTime.format(dateTimeFormatter);
     }
 }

@@ -1,5 +1,6 @@
 package com.rashome.gateway.service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -20,6 +21,7 @@ import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rashome.gateway.commons.exception.IotGatewayException;
+import com.rashome.gateway.commons.util.DateUtil;
 import com.rashome.gateway.commons.util.JsonUtil;
 import com.rashome.gateway.dto.DeviceDataVO;
 import com.rashome.gateway.dto.DeviceVO;
@@ -37,6 +39,8 @@ public class MqttService {
 
     @Autowired
     private ReportService reportService;
+
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS");
 
 
     /**
@@ -82,6 +86,7 @@ public class MqttService {
             return;
         }
 
+
         // 判断是 传感器数据 还是 控制板数据
         boolean isSensorIotDeviceData = true;
         if (iotDeviceDataVO.getParentUuid().equals(iotDeviceDataVO.getDeviceUuid())) {
@@ -103,6 +108,9 @@ public class MqttService {
 
         // 发送数据, 失败则记录日志
         DeviceDataVO deviceDataVO = new DeviceDataVO(iotDeviceDataVO, deviceId);
+        // 获取当前日期, 并注入传感器数据 VO
+        String curDate = DateUtil.getCurDateAndFormatted(dateFormatter);
+        deviceDataVO.setCollectedDate(curDate);
         try {
             reportService.sendData(deviceDataVO);
         } catch (RestClientException | JsonProcessingException | IllegalArgumentException e) {

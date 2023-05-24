@@ -1,9 +1,5 @@
 package com.rashome.gateway.dto;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,14 +19,13 @@ import lombok.NoArgsConstructor;
 public class DeviceDataVO extends BaseDataVO {
 
     @JsonProperty(value = "collected_date")
-    private Date collectedDate;
+    private String collectedDate;
 
     @JsonProperty(value = "device_id")
     private Long deviceId;
 
     public DeviceDataVO(IotDeviceDataVO iotDeviceDataVO, Long deviceId) {
 
-        this.collectedDate = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")).getTime();
         this.deviceId = deviceId;
 
         this.temperature = iotDeviceDataVO.getTemperature();
