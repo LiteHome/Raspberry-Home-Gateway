@@ -11,6 +11,9 @@ public class BaseDataVO {
 
     public Float humidity;
 
+    @JsonProperty(value = "cpu_usage")
+    public String cpuUsage;
+
     @JsonProperty(value = "camera_image_base64")
     public String cameraImageBase64;
 
