@@ -36,7 +36,7 @@ public class DateUtil {
         return Math.round((new Date().getTime() - targetDate.getTime()) / 1000);
     }
 
-        /**
+    /**
      * 获取当前时间并格式化
      * @param dateTimeFormatter
      * @return
@@ -48,5 +48,13 @@ public class DateUtil {
         ZonedDateTime instantTime = ZonedDateTime.ofInstant(nowUtc, asiaShanghaZoneId);
 
         return instantTime.format(dateTimeFormatter);
+    }
+
+    /**
+     * 获取当前时间戳
+     * @return
+     */
+    public static String getCurTimestampAsString() {
+        return String.valueOf(System.currentTimeMillis());
     }
 }

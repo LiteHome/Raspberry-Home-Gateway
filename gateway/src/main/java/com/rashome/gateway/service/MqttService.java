@@ -14,6 +14,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,6 @@ import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rashome.gateway.commons.exception.IotGatewayException;
-import com.rashome.gateway.commons.util.DateUtil;
 import com.rashome.gateway.commons.util.JsonUtil;
 import com.rashome.gateway.dto.DeviceDataVO;
 import com.rashome.gateway.dto.DeviceVO;
@@ -106,11 +106,10 @@ public class MqttService {
             return;
         }
 
-        // 发送数据, 失败则记录日志
-        DeviceDataVO deviceDataVO = new DeviceDataVO(iotDeviceDataVO, deviceId);
-        // 获取当前日期, 并注入传感器数据 VO
-        String curDate = DateUtil.getCurDateAndFormatted(dateFormatter);
-        deviceDataVO.setCollectedDate(curDate);
+        // 复制属性
+        DeviceDataVO deviceDataVO = new DeviceDataVO();
+        BeanUtils.copyProperties(iotDeviceDataVO, deviceDataVO);
+        deviceDataVO.setDeviceId(deviceId);
         try {
             reportService.sendData(deviceDataVO);
         } catch (RestClientException | JsonProcessingException | IllegalArgumentException e) {
