@@ -1,6 +1,5 @@
 package com.rashome.gateway.service;
 
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -39,8 +38,6 @@ public class MqttService {
 
     @Autowired
     private ReportService reportService;
-
-    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS");
 
 
     /**
