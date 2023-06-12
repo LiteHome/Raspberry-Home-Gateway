@@ -27,21 +27,24 @@ public class HttpUtil {
      * @throws RestClientException
      * @throws IllegalArgumentException
      */
-    public static String postJsonPayload(String url, String payload) throws IotGatewayException, RestClientException, IllegalArgumentException {
+    public static String postJsonPayload(String url, String payload) throws IotGatewayException {
         
         if (StringUtils.isAnyBlank(url, payload)) {
             throw new IotGatewayException("url 或 payload 为空");
         }
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-
         // 设置请求头部
+        HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-
         HttpEntity<String> request = new HttpEntity<>(payload, httpHeaders);
 
         // 发送请求
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, request, String.class);
+        ResponseEntity<String> responseEntity;
+        try {
+            responseEntity = restTemplate.postForEntity(url, request, String.class);
+        } catch (RestClientException e) {
+            throw new IotGatewayException("发送 http 请求失败", e);
+        }
 
         // 判断请求是否成功
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {

@@ -1,0 +1,28 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings,info,health,metrics
+  security:
+    enabled: 'false'
+server:
+  address: 0.0.0.0
+  port: '13580'
+  error:
+    include-stacktrace: never
+spring:
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-mm-dd hh:mm:ss
+mqtt:
+  broker:
+    url: tcp://192.168.3.26:1883
+backend:
+  server:
+    device:
+      url: http://43.138.213.187:12580/device/
+    data:
+      url: http://43.138.213.187:12580/data/
+gateway:
+  tag: 房间的树莓派网关
+  info: 树莓派3B+

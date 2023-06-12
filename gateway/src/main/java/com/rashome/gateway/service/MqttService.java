@@ -13,17 +13,12 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rashome.gateway.commons.exception.IotGatewayException;
 import com.rashome.gateway.commons.util.JsonUtil;
-import com.rashome.gateway.dto.DeviceDataVO;
-import com.rashome.gateway.dto.DeviceVO;
 import com.rashome.gateway.dto.IotDeviceDataVO;
 
 @Service
@@ -34,10 +29,7 @@ public class MqttService {
     private IMqttClient mqttClient;
 
     @Autowired
-    private CacheAndMetricsService cacheAndMetricsService;
-
-    @Autowired
-    private ReportService reportService;
+    private GatewayService gatewayService;
 
 
     /**
@@ -83,34 +75,11 @@ public class MqttService {
             return;
         }
 
-
-        // 判断是 传感器数据 还是 控制板数据
-        boolean isSensorIotDeviceData = true;
-        if (iotDeviceDataVO.getParentUuid().equals(iotDeviceDataVO.getDeviceUuid())) {
-            isSensorIotDeviceData = false;
-        }
-
-        // 判断设备是否已注册. 设备 包含传感器和控制板
-        Long deviceId;
+        // 发送数据
         try {
-            deviceId = checkIfRegist(iotDeviceDataVO);
-        } catch (RestClientException | JsonProcessingException | IllegalArgumentException | IotGatewayException e) {
-            if (isSensorIotDeviceData) {
-                logger.warn("注册传感器失败", e);
-            } else {
-                logger.warn("注册控制板失败", e);
-            }
-            return;
-        }
-
-        // 复制属性
-        DeviceDataVO deviceDataVO = new DeviceDataVO();
-        BeanUtils.copyProperties(iotDeviceDataVO, deviceDataVO);
-        deviceDataVO.setDeviceId(deviceId);
-        try {
-            reportService.sendData(deviceDataVO);
-        } catch (RestClientException | JsonProcessingException | IllegalArgumentException e) {
-            logger.error(String.format("发送Iot设备数据失败%s", deviceDataVO.toString()), e);
+            gatewayService.sendData(iotDeviceDataVO);
+        } catch (IotGatewayException e) {
+            logger.warn("发送数据失败");
         }
     }
 
@@ -146,34 +115,6 @@ public class MqttService {
         }
 
         return iotDeviceDataVO;
-    }
-
-    /**
-     * 检查设备是否注册
-     * @param iotDeviceDataVO
-     * @return
-     * @throws RestClientException
-     * @throws JsonProcessingException
-     * @throws IllegalArgumentException
-     * @throws IotGatewayException
-     */
-    private Long checkIfRegist(IotDeviceDataVO iotDeviceDataVO) throws RestClientException, JsonProcessingException, IllegalArgumentException, IotGatewayException {
-
-        // 有缓存则说明已注册
-        Long deviceId = cacheAndMetricsService.getDeviceId(iotDeviceDataVO.getDeviceUuid());
-        if (ObjectUtils.isNotEmpty(deviceId)) {
-            return deviceId;
-        }
-
-        // 没有注册则发送注册请求
-        DeviceVO deviceVO = new DeviceVO(iotDeviceDataVO, cacheAndMetricsService.getGatewayUuid());
-        DeviceVO registDeviceVO = reportService.registDeviceVO(deviceVO);
-
-        // 注册成功则放入缓存
-        deviceId = registDeviceVO.getId();
-        cacheAndMetricsService.put(iotDeviceDataVO.getDeviceUuid(), deviceId);
-
-        return deviceId;
     }
 
     /**
