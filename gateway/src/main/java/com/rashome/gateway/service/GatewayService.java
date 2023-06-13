@@ -1,11 +1,6 @@
 package com.rashome.gateway.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DefaultPropertiesPersister;
 import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -55,21 +49,14 @@ public class GatewayService {
 
     private String gatewayRate;
 
+    private static final String FILE_PATH = "device.config";
+
+    // 初始化网关
     @EventListener(ApplicationReadyEvent.class)
     private void initGateway() throws IotGatewayException {
 
-        HashMap<String,String> propertiesMap = new HashMap<String, String>(2);
-
-        String gatewayUuid = System.getProperty("gateway.uuid");
-        // 没有 uuid, 则生成并设置 uuid
-        if (StringUtils.isBlank(gatewayUuid)) {
-            log.info("网关第一次启动, 生成 uuid");
-            this.gatewayUuid = UUID.randomUUID().toString();
-            propertiesMap.put("gateway.uuid", this.gatewayUuid);
-        } else {
-            log.info("网关有启动历史, 从配置文件获得 uuid");
-            this.gatewayUuid = gatewayUuid;
-        }
+        // 获取 uuid
+        this.gatewayUuid = this.getUuid();
 
         // 没有 rate, 则默认 30s 一次
         String gatewayRate = System.getProperty("gateway.rate");
@@ -82,8 +69,9 @@ public class GatewayService {
         log.info("开始注册网关");
         // 注册网关
         DeviceVO deviceVO = DeviceVO.builder()
-            .deviceInformation(gatewayInfo)
-            .deviceTag(gatewayTag)
+            .deviceInformation(this.gatewayInfo)
+            .deviceTag(this.gatewayTag)
+            .healthCheckRate(this.gatewayRate)
             .deviceUuid(this.gatewayUuid)
             .parentUuid(this.gatewayUuid)
             .gatewayUuid(this.gatewayUuid)
@@ -91,24 +79,28 @@ public class GatewayService {
         this.gatewayDeviceId = this.registDeviceFromDeviceVO(deviceVO);
         log.info("注册网关成功");
 
-        // 写入配置文件
-        writeToPropertiesFile(propertiesMap);
+
     }
 
-    private void writeToPropertiesFile(Map<String, String> propertiesMap) throws IotGatewayException {
+    // gateway uuid 写入配置文件
+    private void writeToPropertiesFile(String deviceUuid) throws IotGatewayException {
+        JsonUtil.writeToFile(DeviceVO.builder().deviceUuid(deviceUuid).build(), FILE_PATH);
+    }
 
-        
-        Properties properties = new Properties();
-        propertiesMap.forEach((k, v) -> {
-            properties.setProperty(k, v);
-        });
+    // 从配置文件获取 uuid, 没有则生成 uuid, 持久化到本地并返回
+    private String getUuid() throws IotGatewayException {
 
-        DefaultPropertiesPersister defaultPropertiesPersister = new DefaultPropertiesPersister();
-        try (FileOutputStream fileOutputStream = new FileOutputStream(new File("test-properties.propties"))) {
-            defaultPropertiesPersister.store(properties, fileOutputStream, "gatewayUuid");
-        } catch (IOException e) {
-            throw new IotGatewayException("无法写入 Properties 文件");
+        try {
+            DeviceVO localDeviceVOWithUuid = JsonUtil.readFromFile(DeviceVO.class, FILE_PATH);
+            log.info("从本地获取 uuid");
+            return localDeviceVOWithUuid.getDeviceUuid();
+        } catch (IotGatewayException e) {
+            log.info("无法从本地获取 uuid", e);
         }
+        
+        String uuid = UUID.randomUUID().toString();
+        this.writeToPropertiesFile(uuid);
+        return uuid;
     }
 
     /**

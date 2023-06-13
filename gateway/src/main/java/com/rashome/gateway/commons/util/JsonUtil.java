@@ -1,6 +1,7 @@
 package com.rashome.gateway.commons.util;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -67,8 +68,8 @@ public class JsonUtil {
         }
     }
 
-        /**
-     * 从字符串反序列化, 返回空如果失败
+    /**
+     * 从字符串反序列化集合, 返回空如果失败
      * @param <T>
      * @param payload
      * @param clazz
@@ -81,6 +82,24 @@ public class JsonUtil {
             return OBJECT_MAPPER.readValue(payload, TYPE_FACTORY.constructCollectionLikeType(List.class, clazz));
         } catch (IOException e) {
             throw new IotGatewayException(String.format("反序列化失败, payload 是 %s", payload), e);
+        }
+    }
+
+    public static void writeToFile(Object source, String filePath) throws IotGatewayException {
+
+        try {
+            OBJECT_MAPPER.writeValue(new File(filePath), source);
+        } catch (IOException e) {
+            throw new IotGatewayException("无法保存到文件", e);
+        }
+    }
+
+    public static <T> T readFromFile(Class<T> clazz, String filePath) throws IotGatewayException {
+
+        try {
+            return OBJECT_MAPPER.readValue(new File(filePath), clazz);
+        } catch (IOException e) {
+            throw new IotGatewayException("无法从文件读取 json", e);
         }
     }
 }

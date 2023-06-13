@@ -1,6 +1,8 @@
 package com.rashome.gateway.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -17,6 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@JsonInclude(Include.NON_NULL)
 public class DeviceVO {
 
     private Long id;
@@ -27,7 +30,7 @@ public class DeviceVO {
 
     // 默认值是 30s
     @JsonProperty(value = "health_check_rate")
-    private String healthCheckRate = "30";
+    private String healthCheckRate;
 
     @JsonProperty(value = "device_information")
     private String deviceInformation;
