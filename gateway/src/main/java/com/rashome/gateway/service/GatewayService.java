@@ -128,6 +128,7 @@ public class GatewayService {
 
         // 发送数据
         String payload = JsonUtil.toJsonString(deviceDataVO);
+        log.info(String.format("发送的数据是 %s", payload));
         HttpUtil.postJsonPayload(deviceDataUrl, payload);
     }
     
