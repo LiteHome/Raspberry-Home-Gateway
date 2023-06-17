@@ -78,8 +78,6 @@ public class GatewayService {
             .build();
         this.gatewayDeviceId = this.registDeviceFromDeviceVO(deviceVO);
         log.info("注册网关成功");
-
-
     }
 
     // gateway uuid 写入配置文件
@@ -89,7 +87,6 @@ public class GatewayService {
 
     // 从配置文件获取 uuid, 没有则生成 uuid, 持久化到本地并返回
     private String getUuid() throws IotGatewayException {
-
         try {
             DeviceVO localDeviceVOWithUuid = JsonUtil.readFromFile(DeviceVO.class, FILE_PATH);
             log.info("从本地获取 uuid");

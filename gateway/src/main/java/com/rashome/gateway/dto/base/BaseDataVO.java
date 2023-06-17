@@ -14,6 +14,15 @@ public class BaseDataVO {
     @JsonProperty(value = "cpu_usage")
     public String cpuUsage;
 
+    @JsonProperty(value = "memory_usage")
+    public String memoryUsage;
+
+    @JsonProperty(value = "disk_usage")
+    public String diskUsage;
+
+    @JsonProperty(value = "network_usage")
+    public String networkUsage;
+
     @JsonProperty(value = "camera_image_base64")
     public String cameraImageBase64;
 
