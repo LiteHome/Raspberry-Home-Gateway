@@ -1,5 +1,7 @@
 package com.rashome.gateway.dto;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -54,6 +56,11 @@ public class DeviceVO {
         this.deviceTag = iotDeviceDataVO.getDeviceTag();
         this.parentUuid = iotDeviceDataVO.getParentUuid();
         this.gatewayUuid = gatewayUuid;
+        if (StringUtils.isBlank(iotDeviceDataVO.getHealthCheckRate())) {
+            this.healthCheckRate = "30";
+        } else {
+            this.healthCheckRate = iotDeviceDataVO.getHealthCheckRate();
+        }
     }
 
 

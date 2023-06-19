@@ -3,10 +3,9 @@ package com.rashome.gateway.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rashome.gateway.dto.base.BaseDataVO;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -14,9 +13,8 @@ import lombok.NoArgsConstructor;
  */
 @JsonInclude(Include.NON_NULL)
 @Data
-@EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
-public class DeviceDataVO extends BaseDataVO {
+public class DeviceDataVO {
 
     // timestamp without offset
     @JsonProperty(value = "collected_date")
@@ -24,4 +22,7 @@ public class DeviceDataVO extends BaseDataVO {
 
     @JsonProperty(value = "device_id")
     private Long deviceId;
+
+    @JsonUnwrapped
+    private String body;
 }
