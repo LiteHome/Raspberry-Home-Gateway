@@ -1,9 +1,13 @@
 package com.rashome.gateway.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +27,15 @@ public class DeviceDataVO {
     @JsonProperty(value = "device_id")
     private Long deviceId;
 
-    @JsonUnwrapped
-    private String body;
+    private Map<String, Object> body = new HashMap<>();
+
+    @JsonAnyGetter
+    public Map<String, Object> getBody(){
+        return this.body;
+    }
+
+    @JsonAnySetter
+    public void setBody(String key, Object value){
+        this.body.put(key, value);
+    }
 }
