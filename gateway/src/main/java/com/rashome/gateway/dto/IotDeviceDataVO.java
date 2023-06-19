@@ -27,7 +27,7 @@ public class IotDeviceDataVO {
     private String deviceInformation;
 
     @JsonProperty(value = "body")
-    private String body;
+    private Object body;
 
     // 默认值是 30s
     @JsonProperty(value = "health_check_rate")
